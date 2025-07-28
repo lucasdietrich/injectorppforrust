@@ -5,6 +5,7 @@ pub(crate) mod linuxapi;
 pub(crate) mod patch_amd64;
 pub(crate) mod patch_arm64;
 pub(crate) mod patch_armv7;
+pub(crate) mod patch_armv7thumb;
 pub(crate) mod patch_trait;
 pub(crate) mod utils;
 pub(crate) mod winapi;

@@ -5,4 +5,4 @@ components = [
   "rustfmt",
   "clippy",
 ]
-targets = ["armv7-unknown-linux-gnueabihf"]
+targets = ["armv7-unknown-linux-gnueabihf", "thumbv7neon-unknown-linux-gnueabihf"]

@@ -9,7 +9,7 @@ impl PatchTrait for PatchArmv7 {
         src: FuncPtrInternal,
         target: FuncPtrInternal,
     ) -> PatchGuard {
-        let patch_size = 12;
+        let patch_size = 4;
         let original_bytes = unsafe { read_bytes(src.as_ptr() as *mut u8, patch_size) };
         let jit_size = 12;
         let jit_memory = allocate_jit_memory(&src, jit_size);

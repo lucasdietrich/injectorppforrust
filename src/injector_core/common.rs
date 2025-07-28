@@ -100,7 +100,7 @@ fn allocate_jit_memory_linux(_src: &FuncPtrInternal, code_size: usize) -> *mut u
     {
         let original_addr = _src.as_ptr() as u64;
         let page_size = unsafe { sysconf(_SC_PAGESIZE) as u64 };
-        let max_range: u64 = 0x1000000; // ±16MB
+        let max_range: u64 = 0x1000000; // ±16MB (??? maybe reduce this to 8MB)
         let mut start_address = original_addr.saturating_sub(max_range);
 
         while start_address <= original_addr + max_range {

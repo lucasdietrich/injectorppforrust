@@ -8,9 +8,10 @@ qemu-debug *args: build
   ./scripts/run-qemu.sh --debug {{exe}} {{args}}
 
 disassemble: build
-  scripts/disassemble.sh target/armv7-unknown-linux-gnueabihf/debug/examples/armv7
+  scripts/disassemble.sh target/thumbv7neon-unknown-linux-gnueabihf/debug/examples/armv7
 
-exe := "target/armv7-unknown-linux-gnueabihf/debug/examples/armv7"
+# exe := "target/armv7-unknown-linux-gnueabihf/debug/examples/armv7"
+exe := "target/thumbv7neon-unknown-linux-gnueabihf/debug/examples/armv7"
 
 build: debug
 

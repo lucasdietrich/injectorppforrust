@@ -7,8 +7,28 @@
       "environment": [],
       "miDebuggerPath": "/usr/bin/gdb-multiarch",
       "miDebuggerServerAddress": "127.0.0.1:1234",
-      "name": "Qemu sembed Launch",
+      "name": "armv7",
       "program": "${workspaceFolder}/target/armv7-unknown-linux-gnueabihf/debug/examples/armv7",
+      "request": "launch",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "ignoreFailures": true,
+          "text": "-enable-pretty-printing"
+        }
+      ],
+      "stopAtEntry": true,
+      "type": "cppdbg"
+    },
+    {
+      "MIMode": "gdb",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "miDebuggerPath": "/usr/bin/gdb-multiarch",
+      "miDebuggerServerAddress": "127.0.0.1:1234",
+      "name": "thumbv7",
+      "program": "${workspaceFolder}/target/thumbv7neon-unknown-linux-gnueabihf/debug/examples/armv7",
       "request": "launch",
       "setupCommands": [
         {

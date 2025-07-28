@@ -6,8 +6,12 @@ use super::patch_arm64::PatchArm64;
 #[cfg(target_arch = "x86_64")]
 use super::patch_amd64::PatchAmd64;
 
-#[cfg(target_arch = "arm")]
-use super::patch_armv7::PatchArmv7;
+// #[cfg(target_arch = "arm")]
+// use super::patch_armv7::PatchArmv7;
+
+// thumb only
+// #[cfg(target_arch = "arm")]
+use super::patch_armv7thumb::PatchArmv7Thumb;
 
 use super::patch_trait::PatchTrait;
 
@@ -34,9 +38,13 @@ impl WhenCalled {
             PatchAmd64::replace_function_with_other_function(self.func_ptr, target)
         }
 
+        // #[cfg(target_arch = "arm")]
+        // {
+        //     PatchArmv7::replace_function_with_other_function(self.func_ptr, target)
+        // }
         #[cfg(target_arch = "arm")]
         {
-            PatchArmv7::replace_function_with_other_function(self.func_ptr, target)
+            PatchArmv7Thumb::replace_function_with_other_function(self.func_ptr, target)
         }
     }
 
@@ -52,6 +60,13 @@ impl WhenCalled {
             PatchAmd64::replace_function_return_boolean(self.func_ptr, value)
         }
 
-        todo!()
+        // #[cfg(target_arch = "arm")]
+        // {
+        //     PatchArmv7::replace_function_return_boolean(self.func_ptr, value)
+        // }
+        #[cfg(target_arch = "arm")]
+        {
+            PatchArmv7Thumb::replace_function_return_boolean(self.func_ptr, value)
+        }
     }
 }
