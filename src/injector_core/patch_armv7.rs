@@ -1,8 +1,6 @@
 #![cfg(target_arch = "arm")]
-use crate::injector_core::arm64_codegenerator::*;
 use crate::injector_core::common::*;
 use crate::injector_core::patch_trait::*;
-use crate::injector_core::utils::*;
 
 pub(crate) struct PatchArmv7;
 
@@ -13,24 +11,21 @@ impl PatchTrait for PatchArmv7 {
     ) -> PatchGuard {
         let patch_size = 12;
         let original_bytes = unsafe { read_bytes(src.as_ptr() as *mut u8, patch_size) };
-        let jit_size = 20;
+        let jit_size = 12;
         let jit_memory = allocate_jit_memory(&src, jit_size);
         generate_will_execute_jit_code_abs(jit_memory, target.as_ptr());
         let func_addr = src.as_ptr() as usize;
         let jit_addr = jit_memory as usize;
         let offset = (jit_addr as isize - func_addr as isize) / 4;
+        let offset = offset - 2; // As PC is 2 instructions ahead in ARMv7
         if !(-33554432..=33554431).contains(&offset) {
             panic!("JIT memory is out of branch range");
         }
         // B (A2 encoding) always
         let branch_instr: u32 = 0xea000000 | ((offset as u32) & 0x00ffffff);
-        // let branch_instr: u32 = 0xfa000000 | ((offset as u32) & 0x00ffffff);
-        // A8.8.120 NOP (Encoding A1) - always (0b1110)
-        let nop: u32 = 0xe320f000;
-        let mut patch = [0u8; 12];
+
+        let mut patch = [0u8; 4];
         patch[0..4].copy_from_slice(&branch_instr.to_le_bytes());
-        patch[4..8].copy_from_slice(&nop.to_le_bytes());
-        patch[8..12].copy_from_slice(&nop.to_le_bytes()); // maybe unecessary
         unsafe {
             patch_function(src.as_ptr() as *mut u8, &patch);
         }
@@ -49,21 +44,13 @@ impl PatchTrait for PatchArmv7 {
     }
 }
 
-/// Generates a 16-byte JIT code block that loads the absolute address of `target`
-/// into register X9 (using a MOVZ and two MOVK instructions) and then branches to X9.
-/// This avoids branch-range limitations.
-///
 /// The generated instructions are:
-///   movz x9, #imm0, lsl #0
-///   movk x9, #imm1, lsl #16
-///   movk x9, #imm2, lsl #32
-///   br x9
+///  - `MOVW X9, #imm0` (clears the rest)
+///   - `MOVT X9, #imm1, LSL #16`
+///   - `MOVK X9, #imm2, LSL #32`
+///   - `BR X9`
 fn generate_will_execute_jit_code_abs(jit_ptr: *mut u8, target: *const ()) {
     let target_addr = target as usize as u32;
-
-    
-    // NOP
-    let nop: u32 = 0xe320f000; // A8.8.120 NOP (Encoding A1) - always (0b1110)
     
     // x9
     let register_name = 9;
@@ -84,16 +71,9 @@ fn generate_will_execute_jit_code_abs(jit_ptr: *mut u8, target: *const ()) {
 
     // Write instructions in the correct order: bottom-up so no overwrite
     let mut asm_code: Vec<u8> = Vec::new();
-    append_instruction(&mut asm_code, nop);
-    append_instruction(&mut asm_code, nop);
     append_instruction(&mut asm_code, movw);
     append_instruction(&mut asm_code, movt);
     append_instruction(&mut asm_code, br);
-    // append_instruction(&mut asm_code, bool_array_to_u32(movz));
-    // append_instruction(&mut asm_code, bool_array_to_u32(movk1));
-    // append_instruction(&mut asm_code, bool_array_to_u32(movk2));
-    // append_instruction(&mut asm_code, bool_array_to_u32(movk3));
-    // append_instruction(&mut asm_code, bool_array_to_u32(br));
 
     unsafe {
         inject_asm_code(&asm_code, jit_ptr);

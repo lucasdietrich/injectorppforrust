@@ -10,14 +10,6 @@ pub(crate) fn u64_to_bits(n: u64) -> [bool; 64] {
     bits
 }
 
-pub(crate) fn u32_to_bits(n: u32) -> [bool; 32] {
-    let mut bits = [false; 32];
-    for (i, bit) in bits.iter_mut().enumerate() {
-        *bit = ((n >> i) & 1) != 0;
-    }
-    bits
-}
-
 /// Converts an 8-bit number into an array of N booleans representing its bits.
 /// The least-significant bit is at index 0.
 pub(crate) fn u8_to_bits<const N: usize>(n: u8) -> [bool; N] {
