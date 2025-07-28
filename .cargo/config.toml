@@ -1,0 +1,40 @@
+[build]
+target = "armv7-unknown-linux-gnueabihf"
+
+[target.armv7-unknown-linux-gnueabihf]
+
+runner = "scripts/run-qemu.sh"
+#runner = "scripts/run-probe-rs.sh"
+
+# When using Yocto SDK, the linker and flags can be obtained from the $CC environment variable
+# after sourcing the environment-setup script.
+rustflags = [
+
+"-C", "link-arg=-mthumb",
+"-C", "link-arg=-mfpu=neon-vfpv4",
+"-C", "link-arg=-mfloat-abi=hard",
+"-C", "link-arg=-mcpu=cortex-a7",
+"-C", "link-arg=-fstack-protector-strong",
+"-C", "link-arg=-O2",
+"-C", "link-arg=-D_FORTIFY_SOURCE=2",
+"-C", "link-arg=-Wformat",
+"-C", "link-arg=-Wformat-security",
+"-C", "link-arg=-Werror=format-security",
+"-C", "link-arg=-D_TIME_BITS=64",
+"-C", "link-arg=-D_FILE_OFFSET_BITS=64",
+"-C", "link-arg=--sysroot=/opt/poky/dk2-5.0.9/sysroots/cortexa7t2hf-neon-vfpv4-poky-linux-gnueabi"
+]
+
+# linker = "/opt/poky/poky-5.0.9/sysroots/x86_64-pokysdk-linux/usr/bin/arm-poky-linux-gnueabi/arm-poky-linux-gnueabi-gcc"
+linker = "/opt/poky/dk2-5.0.9/sysroots/x86_64-pokysdk-linux/usr/bin/arm-poky-linux-gnueabi/arm-poky-linux-gnueabi-gcc"
+
+[env]
+
+
+    ARMV7_UNKNOWN_LINUX_GNUEABIHF_OPENSSL_NO_VENDOR = "1"
+    ARMV7_UNKNOWN_LINUX_GNUEABIHF_OPENSSL_INCLUDE_DIR="/opt/poky/dk2-5.0.9/sysroots/cortexa7t2hf-neon-vfpv4-poky-linux-gnueabi/usr/include"
+    ARMV7_UNKNOWN_LINUX_GNUEABIHF_OPENSSL_LIB_DIR="/opt/poky/dk2-5.0.9/sysroots/cortexa7t2hf-neon-vfpv4-poky-linux-gnueabi/usr/lib"
+
+    X86_64_UNKNOWN_LINUX_GNU_OPENSSL_NO_VENDOR="1"
+    X86_64_UNKNOWN_LINUX_GNU_OPENSSL_LIB_DIR="/usr/lib64"
+    X86_64_UNKNOWN_LINUX_GNU_OPENSSL_INCLUDE_DIR="/usr/include"

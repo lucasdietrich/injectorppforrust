@@ -96,6 +96,39 @@ fn allocate_jit_memory_linux(_src: &FuncPtrInternal, code_size: usize) -> *mut u
         panic!("Failed to allocate JIT memory within ±128MB of source on AArch64");
     }
 
+    #[cfg(target_arch = "arm")]
+    {
+        let original_addr = _src.as_ptr() as u64;
+        let page_size = unsafe { sysconf(_SC_PAGESIZE) as u64 };
+        let max_range: u64 = 0x1000000; // ±16MB
+        let mut start_address = original_addr.saturating_sub(max_range);
+
+        while start_address <= original_addr + max_range {
+            let ptr = unsafe {
+                libc::mmap(
+                    start_address as *mut c_void,
+                    code_size,
+                    PROT_READ | PROT_WRITE | PROT_EXEC,
+                    libc::MAP_ANONYMOUS | libc::MAP_PRIVATE,
+                    -1,
+                    0,
+                )
+            };
+            if ptr != libc::MAP_FAILED {
+                let allocated = ptr as u64;
+                let diff = allocated.abs_diff(original_addr);
+                if diff <= max_range {
+                    return ptr as *mut u8;
+                } else {
+                    unsafe { libc::munmap(ptr, code_size) };
+                }
+            }
+            start_address += page_size;
+        }
+
+        panic!("Failed to allocate JIT memory within ±16MB of source on AArch64");
+    }
+
     #[cfg(target_arch = "x86_64")]
     {
         let max_range: u64 = 0x8000_0000; // ±2GB
@@ -189,7 +222,7 @@ fn allocate_jit_memory_windows(_src: &FuncPtrInternal, code_size: usize) -> *mut
         panic!("Failed to allocate executable memory within ±128MB of original function address on AArch64 Windows");
     }
 
-     #[cfg(target_arch = "x86_64")]
+    #[cfg(target_arch = "x86_64")]
     {
         let max_range: usize = 0x8000_0000; // ±2GB
         let original_addr = _src.as_ptr() as usize;

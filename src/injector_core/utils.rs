@@ -1,9 +1,17 @@
-#![cfg(target_arch = "aarch64")]
+#![cfg(any(target_arch = "aarch64", target_arch = "arm"))]
 
 /// Convert a u64 value into a [bool; 64] array of bits.
 /// Bit 0 is the least-significant bit.
 pub(crate) fn u64_to_bits(n: u64) -> [bool; 64] {
     let mut bits = [false; 64];
+    for (i, bit) in bits.iter_mut().enumerate() {
+        *bit = ((n >> i) & 1) != 0;
+    }
+    bits
+}
+
+pub(crate) fn u32_to_bits(n: u32) -> [bool; 32] {
+    let mut bits = [false; 32];
     for (i, bit) in bits.iter_mut().enumerate() {
         *bit = ((n >> i) & 1) != 0;
     }
